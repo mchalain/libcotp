@@ -6,8 +6,8 @@ typedef struct whmac_handle_s whmac_handle_t;
 
 struct whmac_handle_s
 {
-	gcry_md_hd_t hd;
-	int algo;
+    gcry_md_hd_t hd;
+    int algo;
 };
 
 int gcrypt_algo[]=
@@ -27,64 +27,64 @@ whmac_check (void)
     return 0;
 }
 
-int
-whmac_getlen (int algotype)
+size_t
+whmac_getlen (whmac_handle_t *hd)
 {
-	return gcry_md_get_algo_dlen(gcrypt_algo[algotype]);
+    return gcry_md_get_algo_dlen(hd->algo);
 }
 
 whmac_handle_t *
 whmac_gethandle (int algo)
 {
-	whmac_handle_t *whmac_handle = NULL;
-	gcry_md_hd_t hd;
-	gpg_error_t gpg_err = gcry_md_open (&hd, gcrypt_algo[algo], GCRY_MD_FLAG_HMAC);
-	if (gpg_err == 0) {
-		whmac_handle = calloc(1, sizeof(*whmac_handle));
-		memcpy(whmac_handle->hd, &hd, sizeof(hd));
-		whmac_handle->algo = gcrypt_algo[algo];
-	}
-	return whmac_handle;
+    whmac_handle_t *whmac_handle = NULL;
+    gcry_md_hd_t hd;
+    gpg_error_t gpg_err = gcry_md_open (&hd, gcrypt_algo[algo], GCRY_MD_FLAG_HMAC);
+    if (gpg_err == 0) {
+        whmac_handle = calloc(1, sizeof(*whmac_handle));
+        memcpy(whmac_handle->hd, &hd, sizeof(hd));
+        whmac_handle->algo = gcrypt_algo[algo];
+    }
+    return whmac_handle;
 }
 
 void
 whmac_freehandle (whmac_handle_t *hd)
 {
-	gcry_md_close (hd->hd);
-	free(hd);
+    gcry_md_close (hd->hd);
+    free(hd);
 }
 
 int
 whmac_setkey (whmac_handle_t *hd,
-				unsigned char * buffer,
-				size_t buflen)
+                unsigned char * buffer,
+                size_t buflen)
 {
-	if (gcry_md_setkey (hd->hd, buffer, buflen)) {
-		return -INVALID_ALGO;
-	}
-	return NO_ERROR;
+    if (gcry_md_setkey (hd->hd, buffer, buflen)) {
+        return -INVALID_ALGO;
+    }
+    return NO_ERROR;
 }
 
 void
 whmac_update (whmac_handle_t *hd,
-				unsigned char * buffer,
-				size_t buflen)
+                unsigned char * buffer,
+                size_t buflen)
 {
-	gcry_md_write (hd->hd, buffer, buflen);
+    gcry_md_write (hd->hd, buffer, buflen);
 }
 
 ssize_t
 whmac_finalize(whmac_handle_t *hd,
-				unsigned char * buffer,
-				size_t buflen)
+                unsigned char * buffer,
+                size_t buflen)
 {
-	ssize_t dlen = gcry_md_get_algo_dlen(hd->algo);
-	if (buffer == NULL)
-		return dlen;
+    ssize_t dlen = gcry_md_get_algo_dlen(hd->algo);
+    if (buffer == NULL)
+        return dlen;
 
-	if (dlen > buflen) {
-		return -MEMORY_ALLOCATION_ERROR;
-	}
+    if (dlen > buflen) {
+        return -MEMORY_ALLOCATION_ERROR;
+    }
 
     gcry_md_final (hd->hd);
 
@@ -92,6 +92,6 @@ whmac_finalize(whmac_handle_t *hd,
     if (hmac_tmp == NULL) {
         return -MEMORY_ALLOCATION_ERROR;
     }
-	memcpy (buffer, hmac_tmp, dlen);
-	return dlen;
+    memcpy (buffer, hmac_tmp, dlen);
+    return dlen;
 }

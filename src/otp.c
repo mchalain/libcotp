@@ -266,15 +266,15 @@ compute_hmac (const char *K,
     int j, i;
     for (j = 0, i = 7; j < 8 && i >= 0; j++, i--) {
         C_reverse_byte_order[i] = ((unsigned char *) &C)[j];
-	}
+    }
 
-	whmac_handle_t *hd = whmac_gethandle(algo);
+    whmac_handle_t *hd = whmac_gethandle(algo);
     if (hd == NULL) {
         fprintf (stderr, "Error while opening the cipher handle.\n");
         free (secret);
         return NULL;
     }
-	cotp_error_t copterr = whmac_setkey(hd, secret, secret_len);
+    cotp_error_t copterr = whmac_setkey(hd, secret, secret_len);
     if (copterr) {
         fprintf (stderr, "Error while setting the cipher key.\n");
         free (secret);
@@ -298,7 +298,7 @@ compute_hmac (const char *K,
         free (secret);
         whmac_freehandle (hd);
         return NULL;
-	}
+    }
     free (secret);
 
     whmac_freehandle (hd);
