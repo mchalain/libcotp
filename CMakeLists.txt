@@ -18,15 +18,24 @@ enable_testing()
 add_subdirectory(tests)
 
 set(CMAKE_C_STANDARD 11)
+option(HMACWRAPPER "library to use during hmac computation" "gcrypt")
 
 set(COTP_HEADERS
         src/cotp.h
         )
 set(SOURCE_FILES
         src/otp.c
-        src/utils/whmac_gcrypt.c
         src/utils/base32.c
         )
+if("${HMACWRAPPER}" STREQUAL "gcrypt")
+        set(SOURCE_FILES ${SOURCE_FILES} src/utils/whmac_gcrypt.c)
+        message("copt use gcrypt for hmac")
+elseif("${HMACWRAPPER}" STREQUAL "openssl")
+        set(SOURCE_FILES ${SOURCE_FILES} src/utils/whmac_openssl.c)
+        message("libcopt use openssl for hmac")
+else()
+        message("libcopt can't use ${HMACWRAPPER} for hmac")
+endif()
 
 # Set compiler flags for all targets
 add_compile_options(-Wall -Wextra -O3 -Wformat=2 -Wmissing-format-attribute -fstack-protector-strong -Wundef -Wmissing-format-attribute
